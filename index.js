@@ -10,7 +10,7 @@ app.use(express.json());
 const SCRAPER_KEY = '893615e3d67d13c8b09530af9d28c5c6';
 
 app.get('/precos', async (req, res) => {
-  const { nome } = req.query;
+  const { nome, numero } = req.query;
 
   if (!nome) {
     return res.status(400).json({ erro: 'Nome da carta é obrigatório' });
@@ -26,18 +26,25 @@ app.get('/precos', async (req, res) => {
 
     $('.mtg-single').each((i, el) => {
       const nomeCarta = $(el).find('.mtg-name a').text().trim();
-      const numero = $(el).find('.mtg-numeric-code').text().trim();
+      const numeroCarta = $(el).find('.mtg-numeric-code').text().trim();
       const colecao = $(el).find('.edition-name').text().trim();
       const min = $(el).find('.price-min').text().trim();
       const avg = $(el).find('.price-avg').text().trim();
       const max = $(el).find('.price-max').text().trim();
 
       if (nomeCarta) {
-        cartas.push({ nome: nomeCarta, numero, colecao, min, avg, max });
+        cartas.push({ nome: nomeCarta, numero: numeroCarta, colecao, min, avg, max });
       }
     });
 
-    res.json({ cartas });
+    // Filtra pelo número exato se fornecido
+    let resultado = cartas;
+    if (numero) {
+      const filtradas = cartas.filter(c => c.numero === numero);
+      resultado = filtradas.length > 0 ? filtradas : [];
+    }
+
+    res.json({ cartas: resultado });
   } catch (erro) {
     console.error(erro.message);
     res.status(500).json({ erro: 'Erro ao buscar preços' });
