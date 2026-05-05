@@ -7,6 +7,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const SCRAPER_KEY = '893615e3d67d13c8b09530af9d28c5c6';
+
 app.get('/precos', async (req, res) => {
   const { nome } = req.query;
 
@@ -15,18 +17,10 @@ app.get('/precos', async (req, res) => {
   }
 
   try {
-    const url = `https://www.ligapokemon.com.br/?view=cards/card&card=${encodeURIComponent(nome)}`;
-    const resposta = await axios.get(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-        'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Connection': 'keep-alive',
-        'Referer': 'https://www.ligapokemon.com.br/',
-      },
-    });
+    const ligaUrl = `https://www.ligapokemon.com.br/?view=cards/card&card=${encodeURIComponent(nome)}`;
+    const url = `https://api.scraperapi.com/?api_key=${SCRAPER_KEY}&url=${encodeURIComponent(ligaUrl)}`;
 
+    const resposta = await axios.get(url);
     const $ = cheerio.load(resposta.data);
     const cartas = [];
 
